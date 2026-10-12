@@ -1,0 +1,15 @@
+.seat-chart {
+  display: grid;
+  grid-template-columns: repeat(4, 50px);
+  gap: 10px;
+  width: fit-content;
+  margin-top: 20px;
+}
+
+.seat {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+}

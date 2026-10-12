@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "Air India AI-101",
+    "from": "Delhi",
+    "to": "Mumbai",
+    "departureTime": "08:30",
+    "arrivalTime": "10:45",
+    "price": 5500,
+    "date": "2026-10-15",
+    "totalSeats": 150,
+    "bookedSeats": ["1A", "2B", "3C", "5D"],
+    "luggage": {
+      "includedWeight": 15,
+      "maximumWeight": 25
+    }
+  },
+  {
+    "id": 2,
+    "name": "IndiGo 6E-204",
+    "from": "Mumbai",
+    "to": "Bangalore",
+    "departureTime": "12:00",
+    "arrivalTime": "13:45",
+    "price": 4200,
+    "date": "2026-10-16",
+    "totalSeats": 180,
+    "bookedSeats": ["1B", "2D", "4A", "6C"],
+    "luggage": {
+      "includedWeight": 15,
+      "maximumWeight": 20
+    }
+  },
+  {
+    "id": 3,
+    "name": "Vistara UK-812",
+    "from": "Delhi",
+    "to": "Bangalore",
+    "departureTime": "16:30",
+    "arrivalTime": "19:15",
+    "price": 6800,
+    "date": "2026-10-17",
+    "totalSeats": 160,
+    "bookedSeats": ["1C", "3A", "4D", "5B"],
+    "luggage": {
+      "includedWeight": 15,
+      "maximumWeight": 30
+    }
+  },
+  {
+    "id": 4,
+    "name": "Akasa Air QP-143",
+    "from": "Kolkata",
+    "to": "Delhi",
+    "departureTime": "20:00",
+    "arrivalTime": "22:20",
+    "price": 3900,
+    "date": "2026-10-18",
+    "totalSeats": 150,
+    "bookedSeats": ["2A", "3D", "5C", "6B"],
+    "luggage": {
+      "includedWeight": 15,
+      "maximumWeight": 15
+    }
+  }
+]
