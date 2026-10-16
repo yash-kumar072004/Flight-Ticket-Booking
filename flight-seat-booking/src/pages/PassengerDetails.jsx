@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updatePassengerDetails } from "../redux/bookingSlice.jsx";
+import { updatePassengerDetails } from "../redux/slices/bookingSlice.js";
 
 function PassengerDetails() {
   const navigate = useNavigate();
@@ -9,8 +9,41 @@ function PassengerDetails() {
 
   const flight = useSelector((state) => state.booking.flight);
   const passengers = useSelector((state) => state.booking.passengers);
+  const currentUser = useSelector((state) => state.auth?.user);
 
-  const [passengerData, setPassengerData] = React.useState(passengers);
+  const [passengerData, setPassengerData] = React.useState(() => {
+    if (currentUser && passengers.length > 0 && !passengers[0].name) {
+      return passengers.map((p, idx) =>
+        idx === 0
+          ? {
+              ...p,
+              name: currentUser.name || "",
+              email: currentUser.email || "",
+              phone: currentUser.phone || "",
+              gender: currentUser.gender || p.gender || "Male",
+            }
+          : p
+      );
+    }
+    return passengers;
+  });
+
+  function autofillUser(seat) {
+    if (!currentUser) return;
+    setPassengerData((prev) =>
+      prev.map((p) =>
+        p.seat === seat
+          ? {
+              ...p,
+              name: currentUser.name || p.name,
+              email: currentUser.email || p.email,
+              phone: currentUser.phone || p.phone,
+              gender: currentUser.gender || p.gender || "Male",
+            }
+          : p
+      )
+    );
+  }
 
   function updatePassenger(event, seat) {
     const fieldName = event.target.name;
@@ -169,6 +202,15 @@ function PassengerDetails() {
                   {index + 1}
                 </div>
                 <h2 className="text-base font-bold text-white">Passenger {index + 1}</h2>
+                {currentUser && index === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => autofillUser(passenger.seat)}
+                    className="ml-2 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/25 transition-all cursor-pointer"
+                  >
+                    ⚡ Use My Details
+                  </button>
+                )}
               </div>
               <span className="px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/20">
                 Seat {passenger.seat}

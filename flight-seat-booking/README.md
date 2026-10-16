@@ -1,50 +1,59 @@
-# ✈️ SkyBook — Flight Seat Booking & Management System
+# ✈️ SkyBook — Flight Booking & Management System
 
-SkyBook is a modern, responsive, and full-featured airline reservation web application built with **React 19**, **Vite**, **Tailwind CSS v4**, and **Redux Toolkit**. It delivers an end-to-end flight booking journey from interactive cabin seat selection to personalized add-ons and downloadable boarding passes, paired with a dedicated administrator portal for flight operations.
+SkyBook is a modern, responsive, and full-featured airline reservation web application built with **React 19**, **Vite**, **Tailwind CSS v4**, and **Redux Toolkit**. It delivers an end-to-end flight booking journey from interactive cabin seat selection to personalized add-ons and downloadable boarding passes, complete with user accounts, persistent ticket history, and an administrator operations portal.
 
 ---
 
 ## ✨ Features
 
-### 🛫 User Flight Booking Workflow
-- **Flight Discovery & Search**: Browse scheduled domestic and international flights with live filtering by departure city, arrival destination, or airline name.
-- **Interactive Cabin Seat Map**: Visual wide-body aircraft fuselage layout (Boeing 787 with 3-4-3 seating and dual aisles). Real-time indicators for:
+### 👤 User Authentication & Profile
+- **Passenger Registration (`/register`)**: Create an account with full name, email, phone number, gender, and password. Instant auto-login upon registration.
+- **Passenger Sign In (`/login`)**: Secure authentication with session persistence. Includes an **Auto Fill Demo User** button for 1-click testing (`yash@example.com` / `password123`).
+- **Profile & Navbar Integration**:
+  - Live passenger profile badge with avatar and user initials.
+  - Interactive dropdown showing name, email, phone, active booking count, and sign out.
+  - Active booking counter badge in navigation bar.
+- **Smart Booking Autofill**: When logged in, Passenger 1 details can be auto-filled directly from the user's profile with one click.
+
+---
+
+### 🎫 Anytime Ticket Access ("My Tickets" — `/my-tickets`)
+- **24/7 Digital Ticket Retrieval**: All confirmed flights are permanently saved to the passenger's account.
+- **Comprehensive Ticket Cards**:
+  - Departure & arrival cities with flight times and dates.
+  - Unique **PNR Code** with one-click copy to clipboard.
+  - Reserved seat badges (`12A`, `12B`), meal and luggage summaries, and total fare paid.
+  - Real-time status indicators (`CONFIRMED` or `CANCELLED`).
+- **Actions on Any Ticket**:
+  - 🎫 **View Full Boarding Pass**: Opens an interactive modal displaying official boarding documents and barcodes.
+  - 📄 **Download PDF**: Generates and downloads high-resolution PDF boarding passes anytime.
+  - 🖨️ **Print**: Quick hardcopy printing.
+  - ❌ **Flight Cancellation**: Cancels the ticket with confirmation and automatically releases reserved seats in the flight inventory.
+- **Instant PNR Lookup Tool**: Passengers or guests can look up any booking simply by entering their 9-character PNR code.
+
+---
+
+### 🛫 Flight Booking Workflow
+- **Flight Discovery & Search (`/`)**: Browse scheduled domestic and international flights with live filtering by route, departure city, destination, and sort by fare or departure time.
+- **Interactive Cabin Seat Map**: Visual wide-body aircraft fuselage layout (Boeing 787 with 3-4-3 seating and dual aisles).
   - 💺 Available seats
   - 🪟 Window seats with dedicated badges
   - ⛔ Already-booked seats (disabled & crossed out)
   - 🎯 Multi-seat selection with real-time base fare computation
-- **Passenger Management**: Dynamic profile forms generated per selected seat, capturing full name, email address, phone number, age, and gender with built-in input validation.
-- **In-Flight Meal Selection**: Per-passenger culinary selections featuring Vegetarian Gourmet, Non-Veg Royal, Vegan Fresh, and Junior Explorer options with quantity counters.
-- **Luggage Allowance & Excess Baggage**: Configurable luggage weights per passenger, showing complimentary baggage limits vs. maximum allowances, with real-time excess baggage fee calculation (₹100/kg) and overweight limit warnings.
-- **Digital Boarding Passes & PDF Export**:
-  - High-fidelity airline boarding pass tickets with perforated tear-off styling, barcode graphics, gate info, and passenger subtotals.
-  - **One-click PDF download** powered by `html2canvas-pro` and `jsPDF`, with native support for Tailwind CSS v4's modern `oklch()` color space.
-  - Built-in **Print / Save as PDF** browser fallback (`window.print()`).
+- **Passenger Details (`/flights/:id/passenger`)**: Dynamic passenger profile cards generated per selected seat with input validation.
+- **In-Flight Meal Selection (`/flights/:id/meals`)**: Gourmet culinary selections featuring Vegetarian Gourmet, Non-Veg Royal, Vegan Fresh, and Junior Explorer options with quantity counters.
+- **Luggage Allowance (`/flights/:id/luggage`)**: Configurable baggage weights per passenger with complimentary limits vs. excess baggage calculation (₹100/kg).
+- **Official Boarding Passes (`/flights/:id/boarding-pass`)**: High-fidelity airline boarding pass with barcode graphics, PNR confirmation, PDF download, and immediate "Save to My Tickets" integration.
 
 ---
 
-### 🔐 Admin Flight Operations Portal
-- **Protected Access**: Dedicated login gate for airline operations staff.
+### 🔐 Admin Flight Operations Portal (`/admin`)
+- **Protected Access**: Dedicated login gate for airline operations staff (`admin@gmail.com` / `1234`).
 - **Operational KPI Analytics**: Real-time overview of total scheduled flights, booked passenger seats, and overall aircraft occupancy rates.
 - **Flight Schedule Management (CRUD)**:
-  - Create new flights (airline name, route, departure/arrival times, travel date, base price, total aircraft capacity, and luggage policies).
+  - Create new flights (airline, route, departure/arrival times, date, price, aircraft capacity, luggage policies).
   - Edit existing schedules and fare structures.
-  - Delete retired or canceled flights.
-  - Persistent state saved to browser `localStorage`.
-
----
-
-## 🛠️ Tech Stack
-
-| Technology | Purpose |
-| :--- | :--- |
-| **React 19** | Modern UI library with Concurrent Mode & React Compiler optimization |
-| **Vite 8** | High-speed frontend build tool and dev server |
-| **Tailwind CSS v4** | Modern utility-first CSS styling via `@tailwindcss/vite` |
-| **Redux Toolkit** | Centralized booking state management (flight, seats, passengers, add-ons) |
-| **React Router v7** | Client-side routing with clean step-by-step navigation |
-| **html2canvas-pro** | Canvas rendering engine with support for CSS `oklch()` color functions |
-| **jsPDF** | Client-side vector and image PDF document generator |
+  - Delete flights and release aircraft capacity.
 
 ---
 
@@ -52,89 +61,75 @@ SkyBook is a modern, responsive, and full-featured airline reservation web appli
 
 ```text
 flight-seat-booking/
-├── public/                 # Static assets & favicon
+├── public/                     # Static assets & favicon
 ├── src/
-│   ├── assets/             # Images and SVG icons
-│   ├── components/         # Reusable UI components
-│   │   ├── FlightCard.jsx  # Glassmorphic flight card with route timeline
-│   │   ├── FlightList.jsx  # Flight exploration grid with search filter
-│   │   └── Navbar.jsx      # Global navigation header with portal links
+│   ├── assets/                 # Brand assets & SVG graphics
+│   ├── components/             # Reusable UI components
+│   │   ├── FlightCard.jsx      # Interactive flight card with route timeline
+│   │   ├── FlightList.jsx      # Flight list wrapper (backwards-compatible)
+│   │   ├── Footer.jsx          # Complete airline footer with service links
+│   │   ├── Navbar.jsx          # Header with navigation, ticket badge & user profile
+│   │   └── tickets/            # Ticket-specific components
+│   │       ├── BoardingPassModal.jsx # Full boarding pass popup with PDF & Print
+│   │       └── TicketCard.jsx  # Rich ticket card in My Tickets view
 │   ├── data/
-│   │   └── flights.json    # Default scheduled flight fixtures
-│   ├── pages/              # Application views & workflows
-│   │   ├── AdminDashboard.jsx   # Admin flight schedule management & KPIs
-│   │   ├── AdminLogin.jsx       # Admin authentication screen
-│   │   ├── BoardingPass.jsx     # Boarding pass generator & PDF exporter
-│   │   ├── FlightDetails.jsx    # Interactive aircraft seat selection map
-│   │   ├── LuggageSelection.jsx # Baggage weight & fee calculator
-│   │   ├── MealSelection.jsx    # In-flight meal menu & quantity selector
-│   │   └── PassengerDetails.jsx # Passenger information input forms
-│   ├── redux/              # Global state management
-│   │   ├── bookingSlice.jsx# Redux slice for active booking workflow
-│   │   ├── localStorage.jsx# Storage helpers for Redux state
-│   │   └── store.jsx       # Redux store configuration
+│   │   └── flights.json        # Default flight schedules & routes
+│   ├── pages/                  # Page-level route views
+│   │   ├── AdminDashboard.jsx  # Admin operations & flight scheduling
+│   │   ├── AdminLogin.jsx      # Admin login authentication gate
+│   │   ├── BoardingPass.jsx    # Booking confirmation & immediate pass view
+│   │   ├── FlightDetails.jsx   # Cabin seat selection map
+│   │   ├── Home.jsx            # Flight exploration, filters & features
+│   │   ├── Login.jsx           # Passenger sign in with demo autofill
+│   │   ├── LuggageSelection.jsx# Baggage allowance & extra weight fees
+│   │   ├── MealSelection.jsx   # In-flight gourmet meal ordering
+│   │   ├── MyTickets.jsx       # 24/7 ticket view, PNR lookup & cancellation
+│   │   ├── PassengerDetails.jsx# Passenger information & autofill
+│   │   └── Register.jsx        # Account registration
+│   ├── redux/                  # Redux Toolkit state management
+│   │   ├── localStorage.js     # Storage synchronization
+│   │   ├── store.js            # Combined Redux store
+│   │   └── slices/             # Modular feature slices
+│   │       ├── authSlice.js    # Authentication & user session state
+│   │       ├── bookingSlice.js # Active booking in-flight state
+│   │       └── ticketSlice.js  # Booked tickets & active ticket selection
 │   ├── routes/
-│   │   └── AppRoutes.jsx   # Route definitions & router configuration
-│   ├── utils/
-│   │   └── flightStorage.jsx # LocalStorage persistence for flight inventory
-│   ├── App.jsx             # Root application wrapper
-│   ├── index.css           # Tailwind CSS v4 entry point & design tokens
-│   └── main.jsx            # Application bootstrap with Redux Provider
-├── index.html              # HTML entry point with Inter font integration
-├── package.json            # Project dependencies and script commands
-└── vite.config.js          # Vite config with React and Tailwind plugins
+│   │   └── AppRoutes.jsx       # React Router v7 application route mapping
+│   ├── utils/                  # Persistent data & business logic
+│   │   ├── authStorage.js      # User registry & session management
+│   │   ├── flightStorage.js    # Flight schedules & seat occupancy
+│   │   └── ticketStorage.js    # Persistent tickets, PNR generator & cancellations
+│   ├── App.css                 # Application styles
+│   ├── App.jsx                 # App root component
+│   ├── index.css               # Tailwind CSS v4 design tokens & utilities
+│   └── main.jsx                # Application DOM entry point
+├── package.json
+└── vite.config.js
 ```
+
+---
+
+## 🔑 Demo Credentials
+
+| Role | Email | Password | Access / Notes |
+| :--- | :--- | :--- | :--- |
+| **Passenger User** | `yash@example.com` | `password123` | View booked tickets, boarding passes, auto-fill profile details |
+| **Admin Operations** | `admin@gmail.com` | `1234` | Access Admin Dashboard to manage flights & schedules |
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **npm**: v9.0.0 or higher
+```bash
+# 1. Install dependencies
+npm install
 
-### Installation
+# 2. Start the local Vite development server
+npm run dev
 
-1. **Clone or open the repository:**
-   ```bash
-   cd "flight-seat-booking"
-   ```
+# 3. Build for production
+npm run build
 
-2. **Install project dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start the local development server:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser:**
-   Navigate to the local development URL (typically `http://localhost:5173/`).
-
----
-
-## 🔑 Admin Portal Demo Credentials
-
-To access the administrative console, click the **Admin Portal** link in the navigation header or navigate to `/admin`:
-
-- **Email**: `admin@gmail.com`
-- **Password**: `1234`
-
----
-
-## 📜 Available Scripts
-
-| Command | Description |
-| :--- | :--- |
-| `npm run dev` | Starts the Vite development server with Hot Module Replacement (HMR). |
-| `npm run build` | Compiles and bundles production assets into the `dist/` directory. |
-| `npm run preview` | Locally serves the production build for smoke testing. |
-| `npm run lint` | Runs ESLint across all source files to verify code quality. |
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
+# 4. Run ESLint code checks
+npm run lint
+```

@@ -1,8 +1,8 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { loadFlights } from "../utils/flightStorage.jsx";
-import { setFlight, setSelectedSeats } from "../redux/bookingSlice.jsx";
+import { loadFlights } from "../utils/flightStorage.js";
+import { setFlight, setSelectedSeats } from "../redux/slices/bookingSlice.js";
 
 function FlightDetails() {
   const params = useParams();

@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
-import { resetBooking } from "../redux/bookingSlice.jsx";
-import { bookSeats } from "../utils/flightStorage.jsx";
+import { resetBooking } from "../redux/slices/bookingSlice.js";
+import { bookSeats } from "../utils/flightStorage.js";
+import { createTicket } from "../utils/ticketStorage.js";
 
 function BoardingPass() {
   const navigate = useNavigate();
@@ -13,15 +14,12 @@ function BoardingPass() {
   const flight = useSelector((state) => state.booking.flight);
   const selectedSeats = useSelector((state) => state.booking.selectedSeats);
   const passengers = useSelector((state) => state.booking.passengers);
+  const currentUser = useSelector((state) => state.auth?.user);
 
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState("");
-
-  useEffect(() => {
-    if (flight && selectedSeats.length > 0) {
-      bookSeats(flight.id, selectedSeats);
-    }
-  }, [flight, selectedSeats]);
+  const [pnr] = useState(() => "SKY" + Math.floor(100000 + Math.random() * 900000));
+  const hasSavedRef = useRef(false);
 
   function calculateMealCost(meals) {
     let total = 0;
@@ -34,8 +32,26 @@ function BoardingPass() {
   function calculateTotal(passenger) {
     const mealCost = calculateMealCost(passenger.meals);
     const luggageCost = passenger.luggage.cost;
-    return flight.price + mealCost + luggageCost;
+    return flight ? flight.price + mealCost + luggageCost : 0;
   }
+
+  const overallTotal = passengers.reduce((sum, p) => sum + calculateTotal(p), 0);
+
+  useEffect(() => {
+    if (flight && selectedSeats.length > 0 && !hasSavedRef.current) {
+      hasSavedRef.current = true;
+      bookSeats(flight.id, selectedSeats);
+
+      createTicket({
+        pnr: pnr,
+        userId: currentUser?.id || "guest",
+        userEmail: currentUser?.email || passengers[0]?.email || "",
+        flight: flight,
+        passengers: passengers,
+        totalAmount: overallTotal,
+      });
+    }
+  }, [flight, selectedSeats, currentUser, passengers, overallTotal, pnr]);
 
   async function downloadPDF() {
     const boardingPasses = document.querySelectorAll(".boarding-pass");
@@ -122,8 +138,6 @@ function BoardingPass() {
     );
   }
 
-  const overallTotal = passengers.reduce((sum, p) => sum + calculateTotal(p), 0);
-
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
       {/* Step Indicator */}
@@ -173,13 +187,16 @@ function BoardingPass() {
       {/* Confirmation Banner */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-3">
-          ✓ Booking Confirmed & Seats Reserved
+          ✓ Booking Confirmed & Seats Reserved • PNR: <span className="font-mono text-amber-300 font-bold">{pnr}</span>
         </div>
         <h1 className="text-3xl font-extrabold text-white tracking-tight">
           Official Boarding Passes
         </h1>
         <p className="text-sm text-slate-400 mt-2">
           Present your digital pass or download the PDF version for airport check-in.
+        </p>
+        <p className="text-xs text-sky-400 mt-1 font-medium">
+          ✓ Automatically saved to your account! You can retrieve this ticket anytime under <strong>My Tickets</strong>.
         </p>
       </div>
 
@@ -386,7 +403,7 @@ function BoardingPass() {
                       ></div>
                     ))}
                     <span className="text-[10px] font-mono font-bold text-black ml-2 tracking-widest">
-                      SKY-{flight.id}-{passenger.seat}
+                      {pnr}-{passenger.seat}
                     </span>
                   </div>
 
@@ -420,9 +437,18 @@ function BoardingPass() {
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
           <button
             type="button"
+            onClick={() => navigate("/my-tickets")}
+            className="w-full sm:w-auto px-5 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white shadow-xl shadow-sky-500/25 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>🎫</span>
+            <span>View in My Tickets</span>
+          </button>
+
+          <button
+            type="button"
             disabled={isDownloading}
             onClick={downloadPDF}
-            className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-xl shadow-amber-500/20 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-5 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-xl shadow-amber-500/20 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
           >
             {isDownloading ? (
               <>
@@ -432,7 +458,7 @@ function BoardingPass() {
             ) : (
               <>
                 <span>📄</span>
-                <span>Download Boarding Passes (PDF)</span>
+                <span>Download PDF</span>
               </>
             )}
           </button>
@@ -440,18 +466,18 @@ function BoardingPass() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="w-full sm:w-auto px-5 py-3.5 rounded-xl font-semibold text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-4 py-3.5 rounded-xl font-semibold text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>🖨️</span>
-            <span>Print / Save as PDF</span>
+            <span>Print</span>
           </button>
 
           <button
             type="button"
             onClick={goHome}
-            className="w-full sm:w-auto px-5 py-3.5 rounded-xl font-semibold text-sm bg-slate-800/60 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-3.5 rounded-xl font-semibold text-sm bg-slate-800/60 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
           >
-            ✈ Book Another
+            ✈ New Booking
           </button>
         </div>
       </div>

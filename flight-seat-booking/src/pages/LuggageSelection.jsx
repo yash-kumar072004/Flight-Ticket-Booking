@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updatePassengerLuggage } from "../redux/bookingSlice.jsx";
+import { updatePassengerLuggage } from "../redux/slices/bookingSlice.js";
 
 function LuggageSelection() {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { loadFlights, saveFlights } from "../utils/flightStorage.jsx";
+import { loadFlights, saveFlights } from "../utils/flightStorage.js";
 
 function AdminDashboard() {
   const navigate = useNavigate();
